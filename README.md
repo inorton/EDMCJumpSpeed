@@ -1,6 +1,6 @@
 # JumpSpeed EDMC Plugin
 
-[In-game Screenshot](jumpspeed.png)
+![In-game Screenshot](jumpspeed.png)
 
 Simply unzip jumpspeed into your plugins folder so that you have
 
