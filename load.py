@@ -7,6 +7,13 @@ import time
 
 this = sys.modules[__name__]  # For holding module globals
 
+try:
+    from config import config
+except ImportError:
+    config = dict()
+
+CFG_DISTANCE = "JumpSpeed_distance"
+
 
 class Jump(object):
     """
@@ -25,8 +32,36 @@ class JumpSpeed(object):
     speed_widget = None
     rate_widget = None
     dist_widget = None
-
+    saved_distance = 0
     jumps = []
+
+    def reset(self):
+        """
+        Reset button pressed
+        :return:
+        """
+        self.jumps = []
+        self.saved_distance = 0
+        self.update_window()
+        self.save()
+
+    def load(self):
+        """
+        Load saved distance from config
+        :return:
+        """
+        saved = config.get(CFG_DISTANCE)
+        if not saved:
+            self.saved_distance = 0.0
+        else:
+            self.saved_distance = float(saved)
+
+    def save(self):
+        """
+        Save the saved distance to config
+        :return:
+        """
+        config.set(CFG_DISTANCE, str(self.saved_distance + self.trip_distance()))
 
     def jump(self, distance):
         """
@@ -39,8 +74,9 @@ class JumpSpeed(object):
         data.time = time.time()
         self.jumps.append(data)
         self.update_window()
+        self.save()
 
-    def distance(self):
+    def trip_distance(self):
         """
         Measure how far we've jumped
         :return:
@@ -52,7 +88,7 @@ class JumpSpeed(object):
         Get the jump/hr rate
         :return:
         """
-        if len(self.jumps):
+        if len(self.jumps) > 1:
             started = self.jumps[0].time
             now = time.time()
             return len(self.jumps) * 60.0 * 60.0 / (now - started)
@@ -64,8 +100,8 @@ class JumpSpeed(object):
         Get the jump speed in ly/hr
         :return:
         """
-        dist = self.distance()
-        if dist > 0:
+        dist = self.trip_distance()
+        if dist > 0 and len(self.jumps) > 1:
             started = self.jumps[0].time
             now = time.time()
             return dist * 60.0 * 60.0 / (now - started)
@@ -105,12 +141,13 @@ class JumpSpeed(object):
         :param msg:
         :return:
         """
-        msg = "{0:.2f} Ly".format(self.distance())
+        msg = "{0:.2f} Ly".format(self.trip_distance() + self.saved_distance)
         self.dist_widget.after(0, self.dist_widget.config, {"text": msg})
 
 
 def plugin_start():
     jumpspeed = JumpSpeed()
+    jumpspeed.load()
     this.jumpspeed = jumpspeed
 
 
@@ -128,7 +165,7 @@ def plugin_app(parent):
         justify=tk.RIGHT)
     rate_label = tk.Label(frame, text="Jump Rate:", justify=tk.LEFT)
     rate_label.grid(row=0, column=0, sticky=tk.W)
-    jumpspeed.rate_widget.grid(row=0, column=1, sticky=tk.E)
+    jumpspeed.rate_widget.grid(row=0, column=2, sticky=tk.E)
 
     jumpspeed.speed_widget = tk.Label(
         frame,
@@ -136,7 +173,7 @@ def plugin_app(parent):
         justify=tk.RIGHT)
     speed_label = tk.Label(frame, text="Speed:", justify=tk.LEFT)
     speed_label.grid(row=1, column=0, sticky=tk.W)
-    jumpspeed.speed_widget.grid(row=1, column=1, sticky=tk.E)
+    jumpspeed.speed_widget.grid(row=1, column=2, sticky=tk.E)
 
     jumpspeed.dist_widget = tk.Label(
         frame,
@@ -144,9 +181,12 @@ def plugin_app(parent):
         justify=tk.RIGHT)
     dist_label = tk.Label(frame, text="Distance:", justify=tk.LEFT)
     dist_label.grid(row=2, column=0, sticky=tk.W)
-    jumpspeed.dist_widget.grid(row=2, column=1, sticky=tk.E)
+    jumpspeed.dist_widget.grid(row=2, column=2, sticky=tk.E)
 
-    frame.columnconfigure(1, weight=1)
+    reset_btn = tk.Button(frame, text="Reset", command=jumpspeed.reset)
+    reset_btn.grid(row=2, column=1, sticky=tk.W)
+
+    frame.columnconfigure(2, weight=1)
 
     this.spacer = tk.Frame(frame)
     jumpspeed.update_window()
