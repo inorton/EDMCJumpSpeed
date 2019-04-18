@@ -4,6 +4,7 @@ The "Jump Speed" Plugin
 import Tkinter as tk
 import sys
 import time
+from l10n import Locale
 
 this = sys.modules[__name__]  # For holding module globals
 
@@ -123,7 +124,7 @@ class JumpSpeed(object):
         :param msg:
         :return:
         """
-        msg = "{0:.2f} Jumps/hr".format(self.rate())
+        msg = "{} Jumps/hr".format(Locale.stringFromNumber(self.rate(), 2))
         self.rate_widget.after(0, self.rate_widget.config, {"text": msg})
 
     def update_jumpspeed_speed(self):
@@ -132,7 +133,7 @@ class JumpSpeed(object):
         :param msg:
         :return:
         """
-        msg = "{0:.2f} Ly/hr".format(self.speed())
+        msg = "{} Ly/hr".format(Locale.stringFromNumber(self.speed(), 2))
         self.speed_widget.after(0, self.speed_widget.config, {"text": msg})
 
     def update_jumpspeed_dist(self):
@@ -141,7 +142,7 @@ class JumpSpeed(object):
         :param msg:
         :return:
         """
-        msg = "{0:.2f} Ly".format(self.trip_distance() + self.saved_distance)
+        msg = "{} Ly".format(Locale.stringFromNumber(self.trip_distance() + self.saved_distance, 2))
         self.dist_widget.after(0, self.dist_widget.config, {"text": msg})
 
 
