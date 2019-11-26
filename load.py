@@ -1,7 +1,10 @@
 """
 The "Jump Speed" Plugin
 """
-import Tkinter as tk
+try:
+    import Tkinter as tk
+except ImportError:
+    import tkinter as tk
 import sys
 import time
 from l10n import Locale
@@ -152,6 +155,10 @@ def plugin_start():
     this.jumpspeed = jumpspeed
 
 
+def plugin_start3(plugindir):
+    plugin_start()
+
+
 def plugin_app(parent):
     """
     Create a pair of TK widgets for the EDMC main window
@@ -189,7 +196,6 @@ def plugin_app(parent):
 
     frame.columnconfigure(2, weight=1)
 
-    this.spacer = tk.Frame(frame)
     jumpspeed.update_window()
     return frame
 
