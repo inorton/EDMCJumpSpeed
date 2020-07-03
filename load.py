@@ -200,10 +200,11 @@ def plugin_app(parent):
     return frame
 
 
-def journal_entry(cmdr, system, station, entry, state):
+def journal_entry(cmdr, is_beta, system, station, entry, state):
     """
     Process a journal event
     :param cmdr:
+    :param is_beta:
     :param system:
     :param station:
     :param entry:
