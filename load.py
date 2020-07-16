@@ -7,6 +7,7 @@ except ImportError:
     import tkinter as tk
 import sys
 import time
+import math
 from l10n import Locale
 
 this = sys.modules[__name__]  # For holding module globals
@@ -17,7 +18,7 @@ except ImportError:
     config = dict()
 
 CFG_DISTANCE = "JumpSpeed_distance"
-
+this.star_pos = None    #Used for carrier jumps to calculate distance
 
 class Jump(object):
     """
@@ -211,7 +212,15 @@ def journal_entry(cmdr, is_beta, system, station, entry, state):
     :param state:
     :return:
     """
-    if "event" in entry:
-        if "FSDJump" in entry["event"]:
+    if entry["event"] in ["FSDJump", "Location", "CarrierJump", "StartUp"]:
+        #Original JumpDist calculation
+        if "JumpDist" in entry:
             this.jumpspeed.jump(entry["JumpDist"])
-
+        
+        #calculate JumpDist from stored coords and new coords
+        if this.star_pos and entry["event"] == "CarrierJump":
+            this.jumpspeed.jump(math.sqrt((this.star_pos[0] - entry["StarPos"][0]) ** 2 + (this.star_pos[1] - entry["StarPos"][1]) ** 2 + (this.star_pos[2] - entry["StarPos"][2]) ** 2))
+         
+        #Store coords for possible CarrierJump
+        if "StarPos" in entry:
+            this.star_pos = entry["StarPos"]
