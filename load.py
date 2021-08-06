@@ -55,7 +55,7 @@ class JumpSpeed(object):
         Load saved distance from config
         :return:
         """
-        saved = config.get(CFG_DISTANCE)
+        saved = config.get_str(CFG_DISTANCE)
         if not saved:
             self.saved_distance = 0.0
         else:
