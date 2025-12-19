@@ -158,6 +158,7 @@ def plugin_start():
 
 def plugin_start3(plugindir):
     plugin_start()
+    return "jumpspeed"
 
 
 def plugin_app(parent):
